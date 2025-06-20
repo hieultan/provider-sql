@@ -3,12 +3,17 @@ package mysql
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
 
+	cloudsqlconn "cloud.google.com/go/cloudsqlconn"
+	cloudmysql "cloud.google.com/go/cloudsqlconn/mysql/mysql"
+	"github.com/crossplane-contrib/provider-sql/pkg/clients/cloudsql"
+
 	"github.com/crossplane-contrib/provider-sql/pkg/clients/xsql"
-	"github.com/pkg/errors"
+	perrors "github.com/pkg/errors"
 
 	xpv1 "github.com/crossplane/crossplane-runtime/apis/common/v1"
 	"github.com/crossplane/crossplane-runtime/pkg/reconciler/managed"
@@ -68,9 +73,39 @@ func DSN(username, password, endpoint, port, tls string, binlog *bool) string {
 		tls)
 }
 
+// NewIAM returns a new MySQL database client configured to use Cloud SQL IAM authentication.
+func NewIAM(creds map[string][]byte, tls *string, binlog *bool) (xsql.DB, error) {
+	cn := string(creds[cloudsql.CloudSQLSecretConnectionName])
+	if cn == "" {
+		return nil, errors.New("connection name is required for IAM auth")
+	}
+	username := string(creds[xpv1.ResourceCredentialsSecretUserKey])
+
+	if _, err := cloudmysql.RegisterDriver("cloudsql-mysql", cloudsqlconn.WithIAMAuthN()); err != nil {
+		return nil, err
+	}
+
+	if tls == nil {
+		defaultTLS := "true"
+		tls = &defaultTLS
+	}
+
+	dsn := fmt.Sprintf("%s@cloudsql-mysql(%s)/?tls=%s", username, cn, *tls)
+	if binlog != nil {
+		dsn += "&sql_log_bin=" + strconv.FormatBool(*binlog)
+	}
+
+	return mySQLDB{
+		dsn:      dsn,
+		endpoint: cn,
+		port:     "3306",
+		tls:      *tls,
+	}, nil
+}
+
 // ExecTx is unsupported in MySQL.
 func (c mySQLDB) ExecTx(ctx context.Context, ql []xsql.Query) error {
-	return errors.Errorf(errNotSupported, "transactions")
+	return fmt.Errorf(errNotSupported, "transactions")
 }
 
 // Exec the supplied query.
@@ -153,7 +188,7 @@ func ExecWrapper(ctx context.Context, db xsql.DB, query ExecQuery) error {
 	if err := db.Exec(ctx, xsql.Query{
 		String: query.Query,
 	}); err != nil {
-		return errors.Wrap(err, query.ErrorValue)
+		return perrors.Wrap(err, query.ErrorValue)
 	}
 
 	return nil

@@ -59,12 +59,16 @@ const (
 	// should acquire credentials from a connection secret written by a managed
 	// resource that represents a MySQL server.
 	CredentialsSourceMySQLConnectionSecret xpv1.CredentialsSource = "MySQLConnectionSecret"
+	// CredentialsSourceCloudSQLConnectionSecret indicates that a provider
+	// should acquire credentials from a connection secret written by a
+	// CloudSQLInstance from provider-upjet-gcp and use IAM authentication.
+	CredentialsSourceCloudSQLConnectionSecret xpv1.CredentialsSource = "CloudSQLConnectionSecret"
 )
 
 // ProviderCredentials required to authenticate.
 type ProviderCredentials struct {
 	// Source of the provider credentials.
-	// +kubebuilder:validation:Enum=MySQLConnectionSecret
+	// +kubebuilder:validation:Enum=MySQLConnectionSecret;CloudSQLConnectionSecret
 	Source xpv1.CredentialsSource `json:"source"`
 
 	// A CredentialsSecretRef is a reference to a MySQL connection secret

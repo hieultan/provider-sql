@@ -43,12 +43,16 @@ const (
 	// should acquire credentials from a connection secret written by a managed
 	// resource that represents a PostgreSQL server.
 	CredentialsSourcePostgreSQLConnectionSecret xpv1.CredentialsSource = "PostgreSQLConnectionSecret"
+	// CredentialsSourceCloudSQLConnectionSecret indicates that a provider
+	// should acquire credentials from a CloudSQLInstance connection secret from
+	// provider-upjet-gcp and use IAM authentication.
+	CredentialsSourceCloudSQLConnectionSecret xpv1.CredentialsSource = "CloudSQLConnectionSecret"
 )
 
 // ProviderCredentials required to authenticate.
 type ProviderCredentials struct {
 	// Source of the provider credentials.
-	// +kubebuilder:validation:Enum=PostgreSQLConnectionSecret
+	// +kubebuilder:validation:Enum=PostgreSQLConnectionSecret;CloudSQLConnectionSecret
 	Source xpv1.CredentialsSource `json:"source"`
 
 	// A CredentialsSecretRef is a reference to a PostgreSQL connection secret
