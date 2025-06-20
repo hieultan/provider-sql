@@ -14,29 +14,29 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package controller
+package doris
 
 import (
 	ctrl "sigs.k8s.io/controller-runtime"
 
 	"github.com/crossplane/crossplane-runtime/pkg/controller"
 
-	"github.com/crossplane-contrib/provider-sql/pkg/controller/doris"
-	"github.com/crossplane-contrib/provider-sql/pkg/controller/mssql"
-	"github.com/crossplane-contrib/provider-sql/pkg/controller/mysql"
-	"github.com/crossplane-contrib/provider-sql/pkg/controller/postgresql"
+	"github.com/crossplane-contrib/provider-sql/pkg/controller/doris/config"
+	"github.com/crossplane-contrib/provider-sql/pkg/controller/doris/database"
+	"github.com/crossplane-contrib/provider-sql/pkg/controller/doris/grant"
+	"github.com/crossplane-contrib/provider-sql/pkg/controller/doris/user"
 )
 
-// Setup creates all PostgreSQL controllers with the supplied logger and adds
+// Setup creates all Doris controllers with the supplied logger and adds
 // them to the supplied manager.
-func Setup(mgr ctrl.Manager, l controller.Options) error {
+func Setup(mgr ctrl.Manager, o controller.Options) error {
 	for _, setup := range []func(ctrl.Manager, controller.Options) error{
-		mssql.Setup,
-		mysql.Setup,
-		postgresql.Setup,
-		doris.Setup,
+		config.Setup,
+		database.Setup,
+		user.Setup,
+		grant.Setup,
 	} {
-		if err := setup(mgr, l); err != nil {
+		if err := setup(mgr, o); err != nil {
 			return err
 		}
 	}

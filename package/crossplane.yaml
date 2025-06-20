@@ -21,11 +21,15 @@ metadata:
     friendly-name.meta.crossplane.io: Provider SQL
     friendly-group-name.meta.crossplane.io/mysql.sql.crossplane.io: MySQL
     friendly-group-name.meta.crossplane.io/postgresql.sql.crossplane.io: PostgreSQL
+    friendly-group-name.meta.crossplane.io/doris.sql.crossplane.io: Doris
 
     friendly-kind-name.meta.crossplane.io/database.mysql.sql.crossplane.io: Database
     friendly-kind-name.meta.crossplane.io/database.postgresql.sql.crossplane.io: Database
     friendly-kind-name.meta.crossplane.io/extension.postgresql.sql.crossplane.io: Extension
     friendly-kind-name.meta.crossplane.io/grant.mysql.sql.crossplane.io: Grant
     friendly-kind-name.meta.crossplane.io/grant.postgresql.sql.crossplane.io: Grant
+    friendly-kind-name.meta.crossplane.io/database.doris.sql.crossplane.io: Database
+    friendly-kind-name.meta.crossplane.io/user.doris.sql.crossplane.io: User
+    friendly-kind-name.meta.crossplane.io/grant.doris.sql.crossplane.io: Grant
     friendly-kind-name.meta.crossplane.io/role.postgresql.sql.crossplane.io: Role
     friendly-kind-name.meta.crossplane.io/user.mysql.sql.crossplane.io: User
