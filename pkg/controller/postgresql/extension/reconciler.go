@@ -118,13 +118,26 @@ func (c *connector) Connect(ctx context.Context, mg resource.Managed) (managed.E
 		return nil, errors.Wrap(err, errGetSecret)
 	}
 
-	// We do not want to create an extension on the default DB
-	// if the user was expecting a database name to be resolved.
+	var (
+		db  xsql.DB
+		err error
+	)
+
+	targetDB := pc.Spec.DefaultDatabase
 	if cr.Spec.ForProvider.Database != nil {
-		return &external{db: c.newDB(s.Data, *cr.Spec.ForProvider.Database, clients.ToString(pc.Spec.SSLMode))}, nil
+		targetDB = *cr.Spec.ForProvider.Database
 	}
 
-	return &external{db: c.newDB(s.Data, pc.Spec.DefaultDatabase, clients.ToString(pc.Spec.SSLMode))}, nil
+	if pc.Spec.Credentials.Source == v1alpha1.CredentialsSourceCloudSQLConnectionSecret {
+		db, err = postgresql.NewIAM(s.Data, targetDB, clients.ToString(pc.Spec.SSLMode))
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		db = c.newDB(s.Data, targetDB, clients.ToString(pc.Spec.SSLMode))
+	}
+
+	return &external{db: db}, nil
 }
 
 type external struct{ db xsql.DB }

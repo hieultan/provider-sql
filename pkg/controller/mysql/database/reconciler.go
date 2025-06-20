@@ -125,7 +125,17 @@ func (c *connector) Connect(ctx context.Context, mg resource.Managed) (managed.E
 		return nil, errors.Wrap(err, errTLSConfig)
 	}
 
-	return &external{db: c.newDB(s.Data, tlsName, cr.Spec.ForProvider.BinLog)}, nil
+	var db xsql.DB
+	if pc.Spec.Credentials.Source == v1alpha1.CredentialsSourceCloudSQLConnectionSecret {
+		db, err = mysql.NewIAM(s.Data, tlsName, cr.Spec.ForProvider.BinLog)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		db = c.newDB(s.Data, tlsName, cr.Spec.ForProvider.BinLog)
+	}
+
+	return &external{db: db}, nil
 }
 
 type external struct{ db xsql.DB }

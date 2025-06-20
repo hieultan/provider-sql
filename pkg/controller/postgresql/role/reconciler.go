@@ -128,8 +128,21 @@ func (c *connector) Connect(ctx context.Context, mg resource.Managed) (managed.E
 		return nil, errors.Wrap(err, errGetSecret)
 	}
 
+	var (
+		db  xsql.DB
+		err error
+	)
+	if pc.Spec.Credentials.Source == v1alpha1.CredentialsSourceCloudSQLConnectionSecret {
+		db, err = postgresql.NewIAM(s.Data, pc.Spec.DefaultDatabase, clients.ToString(pc.Spec.SSLMode))
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		db = c.newDB(s.Data, pc.Spec.DefaultDatabase, clients.ToString(pc.Spec.SSLMode))
+	}
+
 	return &external{
-		db:   c.newDB(s.Data, pc.Spec.DefaultDatabase, clients.ToString(pc.Spec.SSLMode)),
+		db:   db,
 		kube: c.kube,
 	}, nil
 }

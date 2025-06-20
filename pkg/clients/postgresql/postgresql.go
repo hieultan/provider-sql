@@ -4,7 +4,12 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"net/url"
+
+	cloudsqlconn "cloud.google.com/go/cloudsqlconn"
+	cloudpg "cloud.google.com/go/cloudsqlconn/postgres/pgxv5"
+	"github.com/crossplane-contrib/provider-sql/pkg/clients/cloudsql"
 
 	"github.com/crossplane-contrib/provider-sql/pkg/clients/xsql"
 	"github.com/lib/pq"
@@ -58,6 +63,35 @@ func DSN(username, password, endpoint, port, database, sslmode string) string {
 		port + "/" +
 		database +
 		"?sslmode=" + sslmode
+}
+
+// NewIAM returns a new PostgreSQL database client configured to use Cloud SQL IAM authentication.
+func NewIAM(creds map[string][]byte, database, sslmode string) (xsql.DB, error) {
+	cn := string(creds[cloudsql.CloudSQLSecretConnectionName])
+	if cn == "" {
+		return nil, errors.New("connection name is required for IAM auth")
+	}
+	username := string(creds[xpv1.ResourceCredentialsSecretUserKey])
+
+	if _, err := cloudpg.RegisterDriver("cloudsql-postgres", cloudsqlconn.WithIAMAuthN()); err != nil {
+		return nil, err
+	}
+
+	if database == "" {
+		database = "postgres"
+	}
+	if sslmode == "" {
+		sslmode = "disable"
+	}
+
+	dsn := fmt.Sprintf("host=%s user=%s dbname=%s sslmode=%s", cn, username, database, sslmode)
+
+	return postgresDB{
+		dsn:      dsn,
+		endpoint: cn,
+		port:     "5432",
+		sslmode:  sslmode,
+	}, nil
 }
 
 // ExecTx executes an array of queries, committing if all are successful and
