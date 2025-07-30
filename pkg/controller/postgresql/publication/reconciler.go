@@ -39,6 +39,7 @@ const (
 	errCreatePublication = "cannot create publication"
 	errAlterPublication  = "cannot alter publication"
 	errDropPublication   = "cannot drop publication"
+	errNoDatabase        = "database must be specified"
 
 	maxConcurrency = 5
 )
@@ -101,12 +102,11 @@ func (c *connector) Connect(ctx context.Context, mg resource.Managed) (managed.E
 		return nil, errors.Wrap(err, errGetSecret)
 	}
 
-	dbName := pc.Spec.DefaultDatabase
-	if cr.Spec.ForProvider.Database != nil {
-		dbName = *cr.Spec.ForProvider.Database
+	if cr.Spec.ForProvider.Database == nil {
+		return nil, errors.New(errNoDatabase)
 	}
 
-	return &external{db: c.newDB(s.Data, dbName, clients.ToString(pc.Spec.SSLMode))}, nil
+	return &external{db: c.newDB(s.Data, *cr.Spec.ForProvider.Database, clients.ToString(pc.Spec.SSLMode))}, nil
 }
 
 type external struct{ db xsql.DB }
