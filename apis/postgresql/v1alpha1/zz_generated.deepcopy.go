@@ -773,7 +773,7 @@ func (in *PublicationParameters) DeepCopyInto(out *PublicationParameters) {
 	}
 	if in.Publish != nil {
 		in, out := &in.Publish, &out.Publish
-		*out = make([]string, len(*in))
+		*out = make([]PublicationOperation, len(*in))
 		copy(*out, *in)
 	}
 	if in.PublishViaPartitionRoot != nil {

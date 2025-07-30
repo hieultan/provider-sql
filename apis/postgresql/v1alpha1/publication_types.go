@@ -22,6 +22,21 @@ import (
 	xpv1 "github.com/crossplane/crossplane-runtime/apis/common/v1"
 )
 
+// PublicationOperation represents a DML operation that can be published.
+// +kubebuilder:validation:Enum=insert;update;delete;truncate
+type PublicationOperation string
+
+const (
+	// PublishInsert indicates INSERT operations are published.
+	PublishInsert PublicationOperation = "insert"
+	// PublishUpdate indicates UPDATE operations are published.
+	PublishUpdate PublicationOperation = "update"
+	// PublishDelete indicates DELETE operations are published.
+	PublishDelete PublicationOperation = "delete"
+	// PublishTruncate indicates TRUNCATE operations are published.
+	PublishTruncate PublicationOperation = "truncate"
+)
+
 // PublicationParameters are the configurable fields of a Publication.
 type PublicationParameters struct {
 	// Owner is the role that owns this publication.
@@ -64,7 +79,7 @@ type PublicationParameters struct {
 
 	// Publish defines which DML operations will be published.
 	// +optional
-	Publish []string `json:"publish,omitempty"`
+	Publish []PublicationOperation `json:"publish,omitempty"`
 
 	// PublishViaPartitionRoot enables publish_via_partition_root parameter.
 	// +optional

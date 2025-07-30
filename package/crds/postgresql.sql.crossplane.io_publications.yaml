@@ -247,6 +247,13 @@ spec:
                   publish:
                     description: Publish defines which DML operations will be published.
                     items:
+                      description: PublicationOperation represents a DML operation
+                        that can be published.
+                      enum:
+                      - insert
+                      - update
+                      - delete
+                      - truncate
                       type: string
                     type: array
                   publishViaPartitionRoot:

@@ -229,7 +229,7 @@ func upToDate(obs, desired v1alpha1.PublicationParameters) bool {
 	if !equalStringSlices(obs.Tables, desired.Tables) {
 		return false
 	}
-	if !equalStringSlices(obs.Publish, desired.Publish) {
+	if !equalStringSlices(opsToStringSlice(obs.Publish), opsToStringSlice(desired.Publish)) {
 		return false
 	}
 	if desired.PublishViaPartitionRoot != nil && (obs.PublishViaPartitionRoot == nil || *desired.PublishViaPartitionRoot != *obs.PublishViaPartitionRoot) {
@@ -323,7 +323,7 @@ func updatePublicationQueries(sp v1alpha1.PublicationParameters, ql *[]xsql.Quer
 func publicationParameters(sp v1alpha1.PublicationParameters) string {
 	var params []string
 	if len(sp.Publish) > 0 {
-		params = append(params, fmt.Sprintf("publish = '%s'", strings.Join(sp.Publish, ", ")))
+		params = append(params, fmt.Sprintf("publish = '%s'", strings.Join(opsToStringSlice(sp.Publish), ", ")))
 	}
 	if sp.PublishViaPartitionRoot != nil {
 		params = append(params, fmt.Sprintf("publish_via_partition_root = %v", *sp.PublishViaPartitionRoot))
@@ -345,6 +345,14 @@ func equalStringSlices(a, b []string) bool {
 		}
 	}
 	return true
+}
+
+func opsToStringSlice(in []v1alpha1.PublicationOperation) []string {
+	out := make([]string, len(in))
+	for i, v := range in {
+		out[i] = string(v)
+	}
+	return out
 }
 
 func quoteTableName(t string) string {
