@@ -98,6 +98,14 @@ var (
 	SchemaGroupVersionKind = SchemeGroupVersion.WithKind(SchemaKind)
 )
 
+// Publication type metadata.
+var (
+	PublicationKind             = reflect.TypeOf(Publication{}).Name()
+	PublicationGroupKind        = schema.GroupKind{Group: Group, Kind: PublicationKind}.String()
+	PublicationKindAPIVersion   = PublicationKind + "." + SchemeGroupVersion.String()
+	PublicationGroupVersionKind = SchemeGroupVersion.WithKind(PublicationKind)
+)
+
 func init() {
 	SchemeBuilder.Register(&ProviderConfig{}, &ProviderConfigList{})
 	SchemeBuilder.Register(&ProviderConfigUsage{}, &ProviderConfigUsageList{})
@@ -106,4 +114,5 @@ func init() {
 	SchemeBuilder.Register(&Grant{}, &GrantList{})
 	SchemeBuilder.Register(&Extension{}, &ExtensionList{})
 	SchemeBuilder.Register(&Schema{}, &SchemaList{})
+	SchemeBuilder.Register(&Publication{}, &PublicationList{})
 }
