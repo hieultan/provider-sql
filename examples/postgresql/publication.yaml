@@ -1,0 +1,18 @@
+apiVersion: postgresql.sql.crossplane.io/v1alpha1
+kind: Publication
+metadata:
+  name: example-publication
+spec:
+  forProvider:
+    databaseRef:
+      name: example
+    ownerRef:
+      name: example-role
+    tables:
+      - public.table1
+      - public.table2
+    publish:
+      - insert
+      - update
+  providerConfigRef:
+    name: default
