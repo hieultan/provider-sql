@@ -1,0 +1,31 @@
+apiVersion: postgresql.sql.crossplane.io/v1alpha1
+kind: Publication
+metadata:
+  name: alltables-publication
+spec:
+  forProvider:
+    databaseRef:
+      name: example
+    allTables: true
+    publish:
+      insert: true
+      update: true
+      delete: true
+      truncate: true
+  providerConfigRef:
+    name: default
+---
+apiVersion: postgresql.sql.crossplane.io/v1alpha1
+kind: Publication
+metadata:
+  name: table-publication
+spec:
+  forProvider:
+    databaseRef:
+      name: example
+    tables:
+      - public.table1
+      - public.table2
+    publishViaPartitionRoot: true
+  providerConfigRef:
+    name: default
